@@ -90,7 +90,6 @@ def plot_image(image_i,  images, label_ids, prediction = -1):
     
     fig.suptitle('Image '+ str(image_i), fontsize=20, y=1.1)
     
-#    pred_names = [label_names[pred_i] for pred_i in pred_indicies]
     if prediction == -1:
         correct_name = label_names[label_id]
     else:
@@ -151,13 +150,7 @@ plt.show()
 
 
 #%% Define the network
-
 import tensorflow as tf
-
-EPOCHS = 10
-BATCH_SIZE = 128*2
-
-
 from tensorflow.contrib.layers import flatten
 
 def LeNet(x, keep_prob):    
@@ -169,7 +162,7 @@ def LeNet(x, keep_prob):
     # Normalize input
     x = tf.contrib.layers.batch_norm( x, is_training = True)
     
-    # TODO: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
+    # Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x16.
     # Shape of the filter-weights for the convolution.
     c1_layers = 16
     c1_s = [5, 5, 3, c1_layers]
@@ -185,7 +178,7 @@ def LeNet(x, keep_prob):
                         padding = 'VALID')
     c1 = tf.nn.bias_add( c1, c1_b)
 
-    # Pooling. Input = 28x28x6. Output = 14x14x6.
+    # Pooling. Input = 28x28x16. Output = 14x14x16.
     c1 = tf.nn.max_pool(    value =   c1,
                             ksize =   [1, 2, 2, 1],
                             strides = [1, 2, 2, 1],
@@ -195,7 +188,7 @@ def LeNet(x, keep_prob):
     c1 = tf.contrib.layers.batch_norm( c1, is_training = True)
     
 
-    # TODO: Layer 2: Convolutional. Output = 10x10x16.
+    # Layer 2: Convolutional. Output = 10x10x32.
     # Shape of the filter-weights for the convolution.
     c2_layers = 32
     c2_s = [5, 5, c1_layers, c2_layers]
@@ -211,7 +204,7 @@ def LeNet(x, keep_prob):
                         padding = 'VALID')
     c2 = tf.nn.bias_add( c2, c2_b)
 
-    # TODO: Pooling. Input = 10x10x16. Output = 5x5x16.
+    # Pooling. Input = 10x10x32. Output = 5x5x32.
     c2 = tf.nn.max_pool(    value =   c2,
                             ksize =   [1, 2, 2, 1],
                             strides = [1, 2, 2, 1],
@@ -220,12 +213,11 @@ def LeNet(x, keep_prob):
     c2 = tf.nn.relu( c2 )
     c2 = tf.contrib.layers.batch_norm( c2, is_training = True)
 
-    # TODO: Flatten. Input = 5x5x16. Output = 400.
+    # Flatten. Input = 5x5x32. Output = 800.
     flat = flatten( c2 )
     
-    # TODO: Layer 3: Fully Connected. Input = 400. Output = 120.
+    # Layer 3: Fully Connected. Input = 800. Output = 120.
     fc1_s = ( c2_s[0] * c2_s[1] * c2_s[3], 120)
-#    fc1_s = ( 800, 120)
     fc1_w = tf.Variable( tf.truncated_normal(fc1_s, mean = mu, stddev = sigma), name = 'fc1_w' )
     fc1_b = tf.Variable( tf.zeros(120), name = 'fc1_b' )
     fc1 = tf.add( tf.matmul( flat, fc1_w ), fc1_b)
@@ -233,7 +225,7 @@ def LeNet(x, keep_prob):
     fc1 = tf.nn.relu( fc1 )
     fc1 = tf.nn.dropout( fc1, keep_prob )
     
-    # TODO: Layer 4: Fully Connected. Input = 120. Output = 84.
+    # Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2_s = (120, 84)
     fc2_w = tf.Variable( tf.truncated_normal(fc2_s, mean = mu, stddev = sigma), name = 'fc2_w' )
     fc2_b = tf.Variable( tf.zeros(84), name = 'fc2_b' )
@@ -242,7 +234,7 @@ def LeNet(x, keep_prob):
     fc2 = tf.nn.relu( fc2 )
     fc2 = tf.nn.dropout( fc2, keep_prob )
     
-    # TODO: Layer 5: Fully Connected. Input = 84. Output = labels_N.
+    # Layer 5: Fully Connected. Input = 84. Output = labels_N.
     fc3_s = (84, labels_N)
     fc3_w = tf.Variable( tf.truncated_normal(fc3_s, mean = mu, stddev = sigma), name = 'fc3_w' )
     fc3_b = tf.Variable( tf.zeros(labels_N), name = 'fc3_b' )
@@ -251,20 +243,22 @@ def LeNet(x, keep_prob):
     return logits, c1, c2
 
 
-
+# Inputs
 x = tf.placeholder(tf.float32, (None, 32, 32, 3), name = 'x')
 y = tf.placeholder(tf.int32, (None), name = 'y')
 one_hot_y = tf.one_hot(y, labels_N, name = 'one_hot_y')
 keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
 
-
+# Network, cost function, optimizer.
 rate = 0.001
-logits, c1, c2 = LeNet(x, keep_prob)
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = logits, labels = one_hot_y)
+logits, c1, c2 = LeNet( x, keep_prob )
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits( logits = logits, labels = one_hot_y )
 predictions = tf.nn.softmax( logits )
-loss_operation = tf.reduce_mean(cross_entropy)
+loss_operation = tf.reduce_mean( cross_entropy )
 optimizer = tf.train.AdamOptimizer( learning_rate = rate, name = 'optimizer' )
 training_operation = optimizer.minimize( loss_operation, name = 'training_operation' )
+
+
 
 
 #%% Evaluate accuracy funtion
@@ -273,7 +267,7 @@ correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 saver = tf.train.Saver()
 
-def evaluate(X_data, y_data):
+def evaluate(X_data, y_data, BATCH_SIZE):
     num_examples = len(X_data)
     total_accuracy = 0
     sess = tf.get_default_session()
@@ -302,6 +296,8 @@ def evaluate(X_data, y_data):
 #%% Training
 
 # Dropout keep probability 
+EPOCHS = 10
+BATCH_SIZE = 128*2
 keep_prob_input = 0.5
 from sklearn.utils import shuffle
 
@@ -318,7 +314,7 @@ with tf.Session() as sess:
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: keep_prob_input})
             
-        validation_accuracy = evaluate(X_valid, y_valid)
+        validation_accuracy = evaluate(X_valid, y_valid, BATCH_SIZE)
         print("EPOCH {} - Validation Accuracy = {:.1%}".format(i+1, validation_accuracy))
         
     saver.save(sess, './lenet')
@@ -346,7 +342,7 @@ if 0:
                 batch_x, batch_y = X_train[offset:end], y_train[offset:end]
                 sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: keep_prob_input})
                 
-            validation_accuracy = evaluate(X_valid, y_valid)
+            validation_accuracy = evaluate(X_valid, y_valid, BATCH_SIZE)
             print("EPOCH {} - Validation Accuracy = {:.1%}".format(i+1, validation_accuracy))
             
         saver.save(sess, './lenet')
@@ -358,7 +354,7 @@ if 0:
 with tf.Session() as sess:
     saver.restore(sess, tf.train.latest_checkpoint('.'))
 
-    test_accuracy = evaluate(X_test, y_test)
+    test_accuracy = evaluate(X_test, y_test, BATCH_SIZE)
     print("Test Accuracy = {:.1%}".format(test_accuracy))
 
 
@@ -382,7 +378,7 @@ with tf.Session() as sess:
 #%
 def display_image_predictions(images, real_labels, predicted):
 
-    fig, axies = plt.subplots(figsize=(7, 6),nrows=4, ncols=3)
+    fig, axies = plt.subplots(figsize=(7, 6),nrows=n_samples, ncols=3)
     fig.tight_layout()
     fig.suptitle('Softmax Predictions', fontsize=20, y=1.1)
 
@@ -409,6 +405,18 @@ def display_image_predictions(images, real_labels, predicted):
     
 # Print prediction of the random samples
 display_image_predictions(predict_feature, real_outputs, predicted)
+
+#%%
+# calculate accuracy of the last 5 run examples
+test_accuracy = 0
+pred_max_ind = np.argmax(predicted.values, axis=0)
+pred_indices = []
+for ind in range(5):
+    pred_val = predicted.indices[ind][pred_max_ind[ind]]
+    if(pred_val == real_outputs[ind]):
+        test_accuracy += 1
+test_accuracy /= 5        
+print('Accuracy for the 5 examples run = {}%'.format(test_accuracy*100))
 
 
 #%%
