@@ -418,6 +418,65 @@ for ind in range(5):
 test_accuracy /= 5        
 print('Accuracy for the 5 examples run = {}%'.format(test_accuracy*100))
 
+#%%
+
+if 0:
+    #%% Get images from the internet and produce a pickle file.
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import matplotlib.image as mpimg
+    import os
+    
+    folder_images = r'.\GTSRB\Final_Training\Images'
+    filenames = []
+    images = []
+    labels = []
+    
+    # Get 5 random images
+    n_samples = 5
+    
+    for im_type in np.random.randint(labels_N, size=(n_samples)):
+        
+        files = os.listdir(folder_images + r'\000{:02d}'.format(im_type) ) 
+        filename = folder_images + r'\000{:02d}\\'.format(im_type) + files[np.random.randint(len(files)-1)]
+        print(filename)
+        filenames.append(filename)
+        image = mpimg.imread(filename)
+        images.append(image)
+        labels.append(im_type)
+        plt.figure
+        plt.imshow(image)
+        plt.show()
+    
+    filename = 'new_images.p'
+    pickle.dump((images, labels), open(filename, 'wb'))
+
+#%%
+import cv2
+# Train with images from the internet.
+
+# Load stored new images
+new_images, new_labels = pickle.load( open('new_images.p', mode='rb') )
+
+# Preprocess them to fit in the network.
+for ind,image in enumerate(new_images):
+    image = cv2.resize(image, (32, 32))
+    new_images[ind] = image
+
+n_samples = 5
+top_n_predictions = 5
+saver = tf.train.Saver()
+# Pick some random images from the test batch.
+#predict_feature, real_outputs, real_labels = 
+new_images, new_labels
+with tf.Session() as sess:
+    saver.restore(sess, './lenet')
+    predicted = sess.run( tf.nn.top_k(tf.nn.softmax(logits), top_n_predictions), feed_dict= { x: new_images, keep_prob: 1.0 } )
+
+# Print prediction of the random samples
+display_image_predictions(new_images, new_labels, predicted)
+
+
 
 #%%
 ### Visualize your network's feature maps here.
