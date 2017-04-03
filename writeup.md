@@ -7,135 +7,138 @@
 
 **Build a Traffic Sign Recognition Project**
 
-The goals / steps of this project are the following:
-* Load the data set (see below for links to the project data set)
-* Explore, summarize and visualize the data set
-* Design, train and test a model architecture
-* Use the model to make predictions on new images
-* Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
-
-
-[//]: # (Image References)
-
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./examples/placeholder.png "Traffic Sign 1"
-[image5]: ./examples/placeholder.png "Traffic Sign 2"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+In this project, a neural network for traffic sign recognition is created and trained. 
 
 ## Rubric Points
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
+Here I consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
 
 ---
 ###Writeup / README
 
 ####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
 
-You're reading it! and here is a link to my [project code](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
+This markdown file is the writeup, that the project code can be found in my [github repository](https://github.com/rpicatoste/carnd-term1-project2-traffic-sign-classifier) for it.
 
 ###Data Set Summary & Exploration
 
 ####1. Provide a basic summary of the data set and identify where in your code the summary was done. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
 
-The code for this step is contained in the second code cell of the IPython notebook.  
-
-I used the pandas library to calculate summary statistics of the traffic
+The code for this step is contained in the second code cell of the IPython notebook. I used the standard len() method and numpy array shape to calculate summary statistics of the traffic
 signs data set:
 
-* The size of training set is ?
-* The size of test set is ?
-* The shape of a traffic sign image is ?
-* The number of unique classes/labels in the data set is ?
+- Image Shape: (32, 32, 3)
+- Training Set:   34799 samples
+- Validation Set:  4410 samples
+- Test Set:       12630 samples
+
+As for the labels representing each type of sign, this is the summary:
+
+- There are : 43 label types
+- Example: ('9', 'No passing')
+- Example: ('20', 'Dangerous curve to the right')
+
 
 ####2. Include an exploratory visualization of the dataset and identify where the code is in your code file.
 
-The code for this step is contained in the third code cell of the IPython notebook.  
+To check how the images look like, I created a function that plots the image and shows its number from the set and the sign type. Here are some random examples:
 
-Here is an exploratory visualization of the data set. It is a bar chart showing how the data ...
+![alt text](./figures/example_image_1.png "Visualization") 
+![alt text](./figures/example_image_2.png "Visualization") 
+![alt text](./figures/example_image_3.png "Visualization")
 
-![alt text][image1]
+To verify that there is a proper distribution of signal types between the 3 datasets, I create a graph showing, for each signal type, how it is distributed on each dataset.
+
+![alt text](./figures/signs_dataset_distribution.png "Visualization")
+
+The distribution of each signal is not exactly the same, but we can see that all have a fair representation on each dataset, and there is no sign with a significantly low number of samples in any of the datasets.
 
 ###Design and Test a Model Architecture
 
-####1. Describe how, and identify where in your code, you preprocessed the image data. What tecniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc.
+####1. Describe how, and identify where in your code, you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc.
 
-The code for this step is contained in the fourth code cell of the IPython notebook.
+For the preprocessing I chose to use the batch_norm layer for the input data in order to normalize the images as they enter the network, without needed to store the images twice, once the original image and second the normalized image. This gives makes the network more practical, avoiding the need to preprocess any batch of images that I would want to test or use for training.
 
-As a first step, I decided to convert the images to grayscale because ...
+This is the piece of code for preprocessing:
 
-Here is an example of a traffic sign image before and after grayscaling.
+    # Normalize input
+    x = tf.contrib.layers.batch_norm( x, is_training = True)
 
-![alt text][image2]
+As for the color, I decided to keep the 3 layers of color, since traffic signs use color to provide some information. Prohibition or limitation use red, allow or end of limitations are blue or black-white, etc.
 
-As a last step, I normalized the image data because ...
 
-####2. Describe how, and identify where in your code, you set up training, validation and testing data. How much data was in each set? Explain what techniques were used to split the data into these sets. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, identify where in your code, and provide example images of the additional data)
+####2. Describe how, and identify where in your code, you set up training, validation and testing data. How much data was in each set? Explain what techniques were used to split the data into these sets.
 
-The code for splitting the data into training and validation sets is contained in the fifth code cell of the IPython notebook.  
+In the jupyter notebook that I downloaded, there was 3 datasets already provided: train, validation and test. I believe that in a previous version of the notebook only 2 datasets where provided and the 3rd one had to be extracted from those. This is not the case anymore. 
 
-To cross validate my model, I randomly split the training data into a training set and validation set. I did this by ...
-
-My final training set had X number of images. My validation set and test set had Y and Z number of images.
-
-The sixth code cell of the IPython notebook contains the code for augmenting the data set. I decided to generate additional data because ... To add more data to the the data set, I used the following techniques because ... 
-
-Here is an example of an original image and an augmented image:
-
-![alt text][image3]
-
-The difference between the original data set and the augmented data set is the following ... 
+However new images are used later in the project, obtained from the internet.
 
 
 ####3. Describe, and identify where in your code, what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-The code for my final model is located in the seventh cell of the ipython notebook. 
+The architecture used for the classification is described in the function Lanet().
 
 My final model consisted of the following layers:
 
-| Layer         		|     Description	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
-| RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
- 
+- Layer: Description 
+- Input: 32x32x3 RGB image 
+	- The input is normalized with batch_norm.  							
+- Convolution layer 1:
+	- Convolution 5x5: 1x1 stride, valid padding, outputs 28x28x16.	
+	- Max pooling 2x2 size, 2x2 stride, outputs 14x14x16		
+	- Relu (after pooling to reduce the operation by 1/4)
+	- Batch normalization. 
+- Convolution layer 2:
+	- Convolution 5x5: 1x1 stride, valid padding, outputs 10x10x32.	
+	- Max pooling 2x2 size, 2x2 stride, outputs 5x5x32		
+	- Relu (after pooling to reduce the operation by 1/4)
+	- Batch normalization. 
+- Flatten
+- Fully connected layer 1: 
+	- 800 inputs, 120 outputs.
+	- Relu.
+	- Dropout.
+- Fully connected layer 2: 
+	- 120 inputs, 84 outputs.	
+	- Relu.
+	- Dropout.
+- Output layer: 
+	- 84 inputs, number of labels outputs.	
+	- Linear activation function.
+	
+This architecture has as outputs the logits that will be passed to 
+the function *softmax\_cross\_entropy\_with\_logits*, which will apply softmax, obtaining the probability of each label, and then cross entropy, to obtain the cost function to minimize (actually the mean for this value obtained for each sample of the batch will be the cost to minimize).
+
+
 
 
 ####4. Describe how, and identify where in your code, you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-The code for training the model is located in the eigth cell of the ipython notebook. 
+The code for training the model is located in the paragraph *Train, Validate and Test the Model*. 
+The optimizer used has been AdamOptimizer. 
 
-To train the model, I used an ....
+To choose the learning rate, I started using 0.001 like in the example with Lanet. The result was good, but then I tried a smaller rate in order to get a better accuracy, assuming that I would need just more epochs. The result however was that I could not reach the same performance by a small percentage after trying several combinations, so I stepped back to a rate of 0.001.
+
+The keep probability for the dropout is 0.5, as normally recommended, in order to avoid overfitting. 
+
 
 ####5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
-The code for calculating the accuracy of the model is located in the ninth cell of the Ipython notebook.
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+* Training accuracy = 99.4% 
+* Validation Accuracy = 95.2% 
+* Test Accuracy = 94.2%
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to over fitting or under fitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+I have tried with longer trainings but not obtaining better results, and therefore I decided to leave the number of epochs in 10.
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
+As described already, I started with Lanet architecture just implemented for the example in the course. 
+I adapted some of the sizes of the convolution network to deal with a bigger number of possible outcomes.
+
+I applied batch normalization to the input and also to the output of the convolution layers, as it is highly recommended in several places and the improvement is significant.
+
+I also added dropout to avoid overfitting, since in this way each layer in the fully connected layer would have more than one path recognizing each possible input.
+
+I changed batch size just to avoid memory errors from the limits in my gpu. 
  
 
 ###Test a Model on New Images
@@ -144,8 +147,8 @@ If a well known architecture was chosen:
 
 Here are five German traffic signs that I found on the web:
 
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
+![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png) 
+![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png)
 
 The first image might be difficult to classify because ...
 
