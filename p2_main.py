@@ -458,6 +458,12 @@ import cv2
 # Load stored new images
 new_images, new_labels = pickle.load( open('new_images.p', mode='rb') )
 
+# Show new images
+for image in new_images:
+    plt.figure
+    plt.imshow(image)
+    plt.show()
+
 # Preprocess them to fit in the network.
 for ind,image in enumerate(new_images):
     image = cv2.resize(image, (32, 32))

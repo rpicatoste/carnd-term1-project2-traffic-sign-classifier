@@ -23,7 +23,7 @@ This markdown file is the writeup, that the project code can be found in my [git
 
 ####1. Provide a basic summary of the data set and identify where in your code the summary was done. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
 
-The code for this step is contained in the second code cell of the IPython notebook. I used the standard len() method and numpy array shape to calculate summary statistics of the traffic
+The code for this step is contained in the paragraph *Step 1: Dataset Summary & Exploration* of the notebook. I used the standard len() method and numpy array shape to calculate and summarize statistics of the traffic
 signs data set:
 
 - Image Shape: (32, 32, 3)
@@ -46,7 +46,7 @@ To check how the images look like, I created a function that plots the image and
 ![alt text](./figures/example_image_2.png "Visualization") 
 ![alt text](./figures/example_image_3.png "Visualization")
 
-To verify that there is a proper distribution of signal types between the 3 datasets, I create a graph showing, for each signal type, how it is distributed on each dataset.
+To verify that there is a proper distribution of signal types between the 3 datasets, I created a graph showing, for each signal type, how it is distributed on each dataset.
 
 ![alt text](./figures/signs_dataset_distribution.png "Visualization")
 
@@ -56,7 +56,7 @@ The distribution of each signal is not exactly the same, but we can see that all
 
 ####1. Describe how, and identify where in your code, you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc.
 
-For the preprocessing I chose to use the batch_norm layer for the input data in order to normalize the images as they enter the network, without needed to store the images twice, once the original image and second the normalized image. This gives makes the network more practical, avoiding the need to preprocess any batch of images that I would want to test or use for training.
+For the preprocessing I chose to use the batch_norm layer for the input data in order to normalize the images as they enter the network, without needed to store the images twice, once the original image and second the normalized image. This makes the network more practical, avoiding the need to preprocess any batch of images that I would want to test or use for training.
 
 This is the piece of code for preprocessing:
 
@@ -125,6 +125,7 @@ The keep probability for the dropout is 0.5, as normally recommended, in order t
 
 
 My final model results were:
+
 * Training accuracy = 99.4% 
 * Validation Accuracy = 95.2% 
 * Test Accuracy = 94.2%
@@ -145,43 +146,27 @@ I changed batch size just to avoid memory errors from the limits in my gpu.
 
 ####1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
 
-Here are five German traffic signs that I found on the web:
+I downloaded the ["German Traffic Sign Recognition Benchmark" dataset](http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Training_Images.zip) and picked randomly 5 images from it:
 
-![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png) 
-![alt text](./examples/placeholder.png) ![alt text](./examples/placeholder.png)
+![alt text](./figures/new_img_1.png) ![alt text](./figures/new_img_2.png) ![alt text](./figures/new_img_3.png) 
+![alt text](./figures/new_img_4.png) ![alt text](./figures/new_img_5.png)
 
-The first image might be difficult to classify because ...
+This images have different sizes and therefore they must be adapted to the input size of the network. The last looks like a very dirty sign and might be confusing for the network.
 
 ####2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. Identify where in your code predictions were made. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
-The code for making predictions on my final model is located in the tenth cell of the Ipython notebook.
+The code for making predictions on my final model is located in the paragraph *Predict the Sign Type for Each Image and Output Top 5 Softmax Probabilities For Each Image Found on the Web*.
 
 Here are the results of the prediction:
+![](./figures/new_images_prediction.png)
 
-| Image			        |     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Stop Sign      		| Stop sign   									| 
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
+The model was able to correctly guess the 5 traffic signs, which gives an accuracy of 100%. This compares favorably to the accuracy on the test set of 94.2%, however 5 is not a statistically significant sample.
 
-
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
 
 ####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction and identify where in your code softmax probabilities were outputted. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
+The softmax probabilities, shown in the previous point, are very clear for these 5 images. However, in the paragraph *Show result on some images from the test batch*, each time is run it will pick some samples from the test set randomly and show the prediction and the softmax probabilities.
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+In the image below we can see an example where the 2nd image was difficult to predict. The probabilities show that the correct prediction won, but closely followed by others, like _keep left_. This might be because the image is not very sharp, and the contrast is very low, making it hard to distinguish clearly what there is in it.
 
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-
-For the second image ... 
+![](./figures/test_images_prediction.png)
