@@ -411,12 +411,12 @@ display_image_predictions(predict_feature, real_outputs, predicted)
 test_accuracy = 0
 pred_max_ind = np.argmax(predicted.values, axis=0)
 pred_indices = []
-for ind in range(5):
+for ind in range(n_samples):
     pred_val = predicted.indices[ind][pred_max_ind[ind]]
     if(pred_val == real_outputs[ind]):
         test_accuracy += 1
-test_accuracy /= 5        
-print('Accuracy for the 5 examples run = {}%'.format(test_accuracy*100))
+test_accuracy /= n_samples        
+print('Accuracy for the {} examples run = {}%'.format(n_samples, test_accuracy*100))
 
 #%%
 
